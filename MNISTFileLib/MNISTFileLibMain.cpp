@@ -1,14 +1,17 @@
 #include <iostream>
 #include <fstream>
+#include <future>
+#include <thread>
+
 #include "Idx3HeaderData.hpp"
 #include "Idx3ImageDataBuffer.hpp"
 
-void read_vector(std::string path)
+bool read_vector(const std::string &path)
 {
-	auto HandleErrorCondition = [](const std::string_view s, int errCode = 1)
+	auto HandleErrorCondition = [](const std::string_view s)
 	{
 		std::cerr << s << std::endl;
-		exit(errCode); // not thread safe!
+		return false;
 	};
 	std::ifstream currentFile(path, std::ios::in | std::ios::binary);
 	if (currentFile)
@@ -19,7 +22,7 @@ void read_vector(std::string path)
 		std::cerr << "Logged a header: " << myHeader << std::endl;
 		if (!currentFile)
 		{
-			HandleErrorCondition("Failed to read header!");
+			return HandleErrorCondition("Failed to read header!");
 		}
 		std::cout << "Done getting input file header." << std::endl;
 		//compute image size from the header attributes [Row Size] and [Col Size]
@@ -33,24 +36,41 @@ void read_vector(std::string path)
 			Idx3Lib::Idx3ImageDataBuffer currentImage(image_size);
 			currentFile >> currentImage;
 			if (!currentFile && !currentFile.eof())
-				HandleErrorCondition("Failed during reading the images!");
+				return HandleErrorCondition("Failed during reading the images!");
 			if (currentImage.ImageSize != currentImage.buffer.size())
-				HandleErrorCondition("Size mismatch, expected" + std::to_string(currentImage.ImageSize) + " bytes, got " + std::to_string(currentImage.buffer.size()) + " bytes.");
+				return HandleErrorCondition("Size mismatch, expected" + std::to_string(currentImage.ImageSize) + " bytes, got " + std::to_string(currentImage.buffer.size()) + " bytes.");
 			imagesRead++;
 		}
 		std::cout << "Read " << imagesRead << " images." << std::endl;
 	}
 	else
 	{
-		HandleErrorCondition("File failed to open.");
+		return HandleErrorCondition("File failed to open.");
 	}
+	return true;
 }
 
 int main()
 {
 	using namespace std;
-	const std::string fileName = "t10k-images.idx3-ubyte";
-	cout << "Beginning call to read..." << endl;
-	read_vector(fileName);
-	cout << "Ended call to read..." << endl;
+	const std::string firstFileName = "t10k-images.idx3-ubyte";
+	const std::string secondFileName = "train-images.idx3-ubyte";
+	auto ReadFileLocal = [](const std::string fileName)
+	{
+		cout << "Reading file: " << fileName << endl;
+		const bool result = read_vector(fileName);
+		cout << "Finished reading file: " << fileName << endl;
+		return result;
+	};
+	cout << "Beginning file reads..." << endl;
+	future<bool> firstReturnVal = async(ReadFileLocal, firstFileName);
+	future<bool> secondReturnVal = async(ReadFileLocal, secondFileName);
+
+	firstReturnVal.wait();
+	if (firstReturnVal.valid())
+		cout << "First thread using file: " << firstFileName << " completed with result: " << firstReturnVal.get() << endl;
+	secondReturnVal.wait();
+	if (secondReturnVal.valid())
+		cout << "Second thread using file: " << secondFileName << " completed with result: " << secondReturnVal.get() << endl;
+	cout << "Ended file reads..." << endl;
 }
