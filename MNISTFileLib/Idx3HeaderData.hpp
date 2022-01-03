@@ -4,6 +4,7 @@ namespace Idx3Lib
 {
 	struct Idx3HeaderData
 	{
+		//Source: https://deepai.org/dataset/mnist
 		/*
 		 * [offset]    [type]          [value]          [description]
 			0000     32 bit integer  0x00000803(2051) magic number
