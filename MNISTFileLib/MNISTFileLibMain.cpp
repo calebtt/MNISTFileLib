@@ -21,7 +21,7 @@ void read_vector(std::string path)
 		{
 			HandleErrorCondition("Failed to read header!");
 		}
-		std::cout << "Done getting input file header.\n";
+		std::cout << "Done getting input file header." << std::endl;
 		//compute image size from the header attributes [Row Size] and [Col Size]
 		const size_t image_size = static_cast<size_t>(myHeader.num_columns) * myHeader.num_rows;
 		const size_t NumImages = myHeader.num_images;

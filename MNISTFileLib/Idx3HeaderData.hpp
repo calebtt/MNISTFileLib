@@ -23,6 +23,7 @@ namespace Idx3Lib
 		using Bits32Type = unsigned int;
 		using Bits8Type = unsigned char;
 		static_assert(sizeof(Bits32Type) == 4);
+		static_assert(sizeof(Bits8Type) == 1);
 		Bits32Type magic = 0;
 		Bits32Type num_images = 0;
 		Bits32Type num_rows = 0;
@@ -37,7 +38,6 @@ namespace Idx3Lib
 			is.read(reinterpret_cast<char*> (&obj.num_images), sizeof(Idx3HeaderData::Bits32Type));
 			is.read(reinterpret_cast<char*> (&obj.num_rows), sizeof(Idx3HeaderData::Bits32Type));
 			is.read(reinterpret_cast<char*> (&obj.num_columns), sizeof(Idx3HeaderData::Bits32Type));
-
 			if (obj.SwitchEndian)
 			{
 				obj.magic = obj.swap_endian(obj.magic);
