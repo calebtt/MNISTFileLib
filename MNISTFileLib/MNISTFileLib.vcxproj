@@ -144,6 +144,7 @@
     <ClInclude Include="Idx3HeaderData.hpp" />
     <ClInclude Include="Idx3ImageDataBuffer.hpp" />
     <ClInclude Include="stdafx.h" />
+    <ClInclude Include="SwapEndian.hpp" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="MNISTFileLibMain.cpp" />

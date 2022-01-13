@@ -22,6 +22,7 @@ namespace Idx3Lib
 			Pixels are organized row-wise.
 			Pixel values are 0 to 255. 0 means background (white), 255 means foreground (black).
 		 */
+		static constexpr bool SwitchEndian = (std::endian::native != std::endian::big);
 		using Bits8Type = unsigned char;
 		static_assert(sizeof(Bits8Type) == 1);
 		const size_t ImageSize;
@@ -34,28 +35,28 @@ namespace Idx3Lib
 		/// </summary>
 		friend std::istream& operator>>(std::ifstream& is, Idx3ImageDataBuffer& obj)
 		{
-			std::istream_iterator<Bits8Type> first(is);
-			std::istream_iterator<Bits8Type> last;
-			//alter internal buffer size to image size
 			obj.buffer.resize(obj.ImageSize);
-			//for each element in the internal buffer, copy a character to it from the istream
-			std::for_each(std::begin(obj.buffer), std::end(obj.buffer), [&first, &last](auto& elem)
-				{
-					if (first != last)
-					{
-						elem = *first;
-						++first;
-					}
-				});
+			is.read(reinterpret_cast<char*> (obj.buffer.data()), sizeof(Bits8Type)*obj.buffer.size());
 			return is;
 		}
 		/// <summary>
 		/// Copies internal buffer into output stream.
 		/// output operator
 		/// </summary>
-		friend std::ostream& operator<<(std::ostream& os, const Idx3ImageDataBuffer& obj)
+		friend std::ofstream& operator<<(std::ofstream& os, const Idx3ImageDataBuffer& obj)
 		{
-			std::copy(std::begin(obj.buffer), std::end(obj.buffer), std::ostream_iterator<Bits8Type>(os));
+			std::for_each(std::begin(obj.buffer), std::end(obj.buffer), [&os,&obj](auto& elem)
+				{
+					if (obj.SwitchEndian)
+					{
+						auto fixed = swap_endian(elem);
+						os.put(fixed);
+					}
+					else
+					{
+						os.put(elem);
+					}
+				});
 			return os;
 		}
 	};
