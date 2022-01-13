@@ -45,12 +45,6 @@ bool read_vector(const std::string &path)
 			imagePointer = currentImage;
 		}
 		ss << "Read " << imagesRead << " images." << std::endl;
-		//ss << "Last image data: " << *imagePointer << std::endl;
-		auto id = std::this_thread::get_id();
-		std::stringstream strs;
-		strs << id;
-		std::ofstream outFile(std::format("{0}.txt",strs.str()), std::ios::binary);
-		outFile << myHeader << *imagePointer;
 	}
 	else
 	{
@@ -72,7 +66,7 @@ bool CopyDataFile(const std::string &path)
 	auto id = std::this_thread::get_id();
 	std::stringstream strs;
 	strs << id;
-	std::ofstream outFile(std::format("{0}.txt", strs.str()), std::ios::binary);
+	std::ofstream outFile(std::format("{0}.txt", strs.str()), std::ios::binary); //unique thread id filename
 	if (currentFile)
 	{
 		//read header
@@ -94,20 +88,18 @@ bool CopyDataFile(const std::string &path)
 		size_t imagesRead = 0;
 		ss << "Copying images..." << std::endl;
 		//for each image based on the [Num Images] position
-		std::shared_ptr<Idx3Lib::Idx3ImageDataBuffer> imagePointer;
 		for (size_t i = 0; i < NumImages; i++)
 		{
-			std::shared_ptr<Idx3Lib::Idx3ImageDataBuffer> currentImage = std::make_shared<Idx3Lib::Idx3ImageDataBuffer>(image_size);
-			currentFile >> *currentImage;
+			Idx3Lib::Idx3ImageDataBuffer currentImage(image_size);
+			currentFile >> currentImage;
 			if (!currentFile && !currentFile.eof())
 				return HandleErrorCondition("Failed during reading the images!");
-			if (currentImage->ImageSize != currentImage->buffer.size())
-				return HandleErrorCondition("Size mismatch, expected" + std::to_string(currentImage->ImageSize) + " bytes, got " + std::to_string(currentImage->buffer.size()) + " bytes.");
+			if (currentImage.ImageSize != currentImage.buffer.size())
+				return HandleErrorCondition("Size mismatch, expected" + std::to_string(currentImage.ImageSize) + " bytes, got " + std::to_string(currentImage.buffer.size()) + " bytes.");
 			imagesRead++;
-			imagePointer = currentImage;
-			outFile << *currentImage;
+			outFile << currentImage;
 		}
-		ss << "Read " << imagesRead << " images." << std::endl;
+		ss << "Copied " << imagesRead << " images." << std::endl;
 	}
 	else
 	{
