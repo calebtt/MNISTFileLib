@@ -45,9 +45,11 @@ namespace Idx3Lib
 		/// </summary>
 		friend std::ofstream& operator<<(std::ofstream& os, const Idx3ImageDataBuffer& obj)
 		{
-			std::for_each(std::begin(obj.buffer), std::end(obj.buffer), [&os,&obj](auto& elem)
+			if (os.is_open())
+			{
+				for (auto& elem : obj.buffer)
 				{
-					if (obj.SwitchEndian)
+					if constexpr (obj.SwitchEndian)
 					{
 						auto fixed = swap_endian(elem);
 						os.put(fixed);
@@ -56,7 +58,8 @@ namespace Idx3Lib
 					{
 						os.put(elem);
 					}
-				});
+				}
+			}
 			return os;
 		}
 	};

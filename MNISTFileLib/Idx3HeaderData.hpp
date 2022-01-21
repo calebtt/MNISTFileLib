@@ -42,7 +42,7 @@ namespace Idx3Lib
 			is.read(reinterpret_cast<char*> (&obj.num_images), sizeof(Idx3HeaderData::Bits32Type));
 			is.read(reinterpret_cast<char*> (&obj.num_rows), sizeof(Idx3HeaderData::Bits32Type));
 			is.read(reinterpret_cast<char*> (&obj.num_columns), sizeof(Idx3HeaderData::Bits32Type));
-			if (SwitchEndian)
+			if constexpr (SwitchEndian)
 			{
 				obj.magic = swap_endian(obj.magic);
 				obj.num_images = swap_endian(obj.num_images);
@@ -64,7 +64,7 @@ namespace Idx3Lib
 		//explicit specialization for ofstream writing
 		friend std::ofstream& operator<<(std::ofstream& os, const Idx3HeaderData& obj)
 		{
-			if (obj.SwitchEndian)
+			if constexpr(obj.SwitchEndian)
 			{
 				std::array<Bits32Type, Idx3HeaderData::NUM_ELEMENTS> buf{ swap_endian(obj.magic), swap_endian(obj.num_images), swap_endian(obj.num_rows), swap_endian(obj.num_columns) };
 				os.write(reinterpret_cast<const char*>(buf.data()), buf.size()*sizeof(Idx3HeaderData::Bits32Type));
