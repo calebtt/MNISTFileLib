@@ -2,7 +2,7 @@
 #include "stdafx.h"
 #include "../MNISTFileLib/Idx3HeaderData.hpp"
 #include "InputNode.hpp"
-#include "BuildRandom.hpp"
+#include "convo_nnet.h"
 
 /// <summary>This type will assign randomly generated weights to incoming connections
 ///	when ActivationFunction() is called, these can be modified via the m_weightMap data member.
@@ -17,27 +17,51 @@ struct HiddenNeuron
 	using ActivationResultType = double;
 	using RandomType = unsigned int;
 
-	NodeIdType m_nodeId = 0;
-	BiasType m_bias = 0.0;
-	ActivationResultType m_activationResult = 0.0;
+	NodeIdType m_nodeId{};
+	BiasType m_bias{NNFunctions::getRandomDouble()};
+	ActivationResultType m_activationResult{};
 	//Weights assigned to each element of the incoming connections
 	std::unordered_map<NodeIdType, WeightType> m_weightMap;
-	//below, unused for the moment.
-	//std::function<ActivationResultType(PixelType, WeightType)> activationFunction;
-	//const auto BasicActivationFunction = [](auto pixData, auto weightData)
-	//{
-
-	//};
 
 	/// <summary>Default ctor, a random bias value is assigned.</summary>
-	HiddenNeuron(NodeIdType id) : m_nodeId(id)
+	explicit HiddenNeuron(const NodeIdType id) : m_nodeId(id)
 	{
-		const auto w = BuildRandom::BuildRandomVector<RandomType>(1, 1);
-		m_bias = w[0] % 100 / 100.0;
 	}
 
 	/// <summary>Ctor for assigning a bias explicitly</summary>
-	HiddenNeuron(NodeIdType id, BiasType bias) : m_nodeId(id), m_bias(bias) { }
+	HiddenNeuron(const NodeIdType id, const BiasType bias) : m_nodeId(id), m_bias(bias) { }
+
+	HiddenNeuron(const HiddenNeuron& other) = default;
+
+	HiddenNeuron(HiddenNeuron&& other) noexcept
+		: m_nodeId(other.m_nodeId),
+		  m_bias(other.m_bias),
+		  m_activationResult(other.m_activationResult),
+		  m_weightMap(std::move(other.m_weightMap))
+	{
+	}
+
+	HiddenNeuron& operator=(const HiddenNeuron& other)
+	{
+		if (this == &other)
+			return *this;
+		m_nodeId = other.m_nodeId;
+		m_bias = other.m_bias;
+		m_activationResult = other.m_activationResult;
+		m_weightMap = other.m_weightMap;
+		return *this;
+	}
+
+	HiddenNeuron& operator=(HiddenNeuron&& other) noexcept
+	{
+		if (this == &other)
+			return *this;
+		m_nodeId = other.m_nodeId;
+		m_bias = other.m_bias;
+		m_activationResult = other.m_activationResult;
+		m_weightMap = std::move(other.m_weightMap);
+		return *this;
+	}
 
 	/// <summary>The activation function applied on the incoming connections. Result is stored internally as well.</summary>
 	ActivationResultType ActivationFunction(const std::vector<InputNode> &inputNodeVector)
@@ -45,12 +69,7 @@ struct HiddenNeuron
 		//The neuron assigns a weight to each of it's incoming connections.
 		for (const auto& elem : inputNodeVector)
 		{
-			if (!m_weightMap[elem.m_nodeId])
-			{
-				//Randomly generate a weight.
-				const auto w = BuildRandom::BuildRandomVector<RandomType>(1, 1);
-				m_weightMap[elem.m_nodeId] = w[0] % 100 / 100.0;
-			}
+			m_weightMap[elem.m_nodeId] = NNFunctions::getRandomDouble();
 		}
 		// might want a big number lib for this with many input nodes, boost has one that seemed good
 		ActivationResultType runningSum = 0.0;

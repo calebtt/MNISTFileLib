@@ -21,8 +21,8 @@
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>
     <Keyword>Win32Proj</Keyword>
-    <ProjectGuid>{f012a6e2-dcf1-433d-88df-6e7386e83a87}</ProjectGuid>
-    <RootNamespace>feedforwardnetmnist</RootNamespace>
+    <ProjectGuid>{cd5ebc72-0f18-42fb-8ae4-d7b1bece8ad5}</ProjectGuid>
+    <RootNamespace>ImageLibOGL</RootNamespace>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
@@ -70,18 +70,6 @@
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <LinkIncremental>true</LinkIncremental>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-    <LinkIncremental>false</LinkIncremental>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <LinkIncremental>true</LinkIncremental>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <LinkIncremental>false</LinkIncremental>
-  </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
@@ -116,9 +104,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <PrecompiledHeader>Create</PrecompiledHeader>
       <LanguageStandard>stdcpplatest</LanguageStandard>
-      <LanguageStandard_C>stdc17</LanguageStandard_C>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -142,21 +128,11 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="feedforwardnetmnist.cpp" />
+    <ClCompile Include="ImageLibOGL.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="convo_nnet.h" />
-    <ClInclude Include="RandomGen.hpp" />
-    <ClInclude Include="HiddenNeuron.hpp" />
-    <ClInclude Include="InputNode.hpp" />
-    <ClInclude Include="OutputNeuron.hpp" />
-    <ClInclude Include="stdafx.h" />
-    <ClInclude Include="TestOldFramework.h" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\MNISTFileLib\MNISTFileLib.vcxproj">
-      <Project>{76a9bacf-cd62-4319-a7c5-1fee321ca7c8}</Project>
-    </ProjectReference>
+    <ClInclude Include="ImgWindow.h" />
+    <ClInclude Include="stb_image.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

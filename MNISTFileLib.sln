@@ -7,6 +7,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "MNISTFileLib", "MNISTFileLi
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "feedforwardnetmnist", "feedforwardnetmnist\feedforwardnetmnist.vcxproj", "{F012A6E2-DCF1-433D-88DF-6E7386E83A87}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ImageLibOGL", "ImageLibOGL\ImageLibOGL.vcxproj", "{CD5EBC72-0F18-42FB-8AE4-D7B1BECE8AD5}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -31,6 +33,14 @@ Global
 		{F012A6E2-DCF1-433D-88DF-6E7386E83A87}.Release|x64.Build.0 = Release|x64
 		{F012A6E2-DCF1-433D-88DF-6E7386E83A87}.Release|x86.ActiveCfg = Release|Win32
 		{F012A6E2-DCF1-433D-88DF-6E7386E83A87}.Release|x86.Build.0 = Release|Win32
+		{CD5EBC72-0F18-42FB-8AE4-D7B1BECE8AD5}.Debug|x64.ActiveCfg = Debug|x64
+		{CD5EBC72-0F18-42FB-8AE4-D7B1BECE8AD5}.Debug|x64.Build.0 = Debug|x64
+		{CD5EBC72-0F18-42FB-8AE4-D7B1BECE8AD5}.Debug|x86.ActiveCfg = Debug|Win32
+		{CD5EBC72-0F18-42FB-8AE4-D7B1BECE8AD5}.Debug|x86.Build.0 = Debug|Win32
+		{CD5EBC72-0F18-42FB-8AE4-D7B1BECE8AD5}.Release|x64.ActiveCfg = Release|x64
+		{CD5EBC72-0F18-42FB-8AE4-D7B1BECE8AD5}.Release|x64.Build.0 = Release|x64
+		{CD5EBC72-0F18-42FB-8AE4-D7B1BECE8AD5}.Release|x86.ActiveCfg = Release|Win32
+		{CD5EBC72-0F18-42FB-8AE4-D7B1BECE8AD5}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

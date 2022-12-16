@@ -2,10 +2,9 @@
 #include "stdafx.h"
 namespace Idx3Lib
 {
-	/// <summary>
-	/// Class is not reusable! You will need to instantiate a new object
-	/// to change the image size.
-	/// </summary>
+	/// <summary> Class object used for reading an image from the MNIST data source
+	///	of the IDX3 format. Size of the image to be read must be known before-hand, and
+	///	the file pointer in the ifstream should be placed appropriately to read the beginning of the image data. </summary>
 	struct Idx3ImageDataBuffer
 	{
 		//Source: https://deepai.org/dataset/mnist
@@ -22,42 +21,63 @@ namespace Idx3Lib
 			Pixels are organized row-wise.
 			Pixel values are 0 to 255. 0 means background (white), 255 means foreground (black).
 		 */
+	public:
 		static constexpr bool SwitchEndian = (std::endian::native != std::endian::big);
 		using Bits8Type = unsigned char;
 		static_assert(sizeof(Bits8Type) == 1);
-		const size_t ImageSize;
-		std::vector<Bits8Type> buffer;
-		explicit Idx3ImageDataBuffer(size_t imageSize) : ImageSize(imageSize) { }
-		/// <summary>
-		/// Reads image data into the struct, precondition is that the file stream's read pointer is at the beginning of the image data!
-		/// Reads ImageSize bytes.
-		/// input operator
-		/// </summary>
+		std::vector<Bits8Type> ImageBuffer;
+		std::size_t LastReadCount{};
+		unsigned Col_Count{};
+		unsigned Row_Count{};
+
+		/// <summary> Specify the image size in bytes to be read. </summary>
+		///	<param name="col_count">num columns</param>
+		///	<param name="row_count">num rows</param>
+		explicit Idx3ImageDataBuffer(const unsigned col_count, const unsigned row_count)
+		: ImageBuffer(col_count * row_count), Col_Count(col_count), Row_Count(row_count) { }
+
+		/// <summary> Resets the size of the buffer, which determines how many bytes will be read
+		///	when the stream operator overloads are used on an input file. </summary>
+		/// <param name="newSize"> Image size to be read in (in bytes). </param>
+		void ResetBufferSize(const std::size_t newSize)
+		{
+			ImageBuffer.resize(newSize);
+		}
+
+		/**
+		 * \brief Gets the size pair for the image.
+		 * \return Returns pair of column_count, row_count
+		 */
+		[[nodiscard]]
+		auto GetImageSize() const noexcept
+			-> std::size_t
+		{
+			return Col_Count * Row_Count;
+		}
+
+		/// <summary> Reads image data into the struct, precondition is that the file stream's read pointer is at the beginning of the image data!
+		/// Reads ImageSize bytes. input operator </summary>
 		friend std::istream& operator>>(std::ifstream& is, Idx3ImageDataBuffer& obj)
 		{
-			obj.buffer.resize(obj.ImageSize);
-			is.read(reinterpret_cast<char*> (obj.buffer.data()), sizeof(Bits8Type)*obj.buffer.size());
+			is.read(reinterpret_cast<char*> (obj.ImageBuffer.data()), static_cast<std::streamsize>(sizeof(Bits8Type) * obj.ImageBuffer.size()));
+			obj.LastReadCount = static_cast<size_t>(is.gcount());
 			return is;
 		}
-		/// <summary>
-		/// Copies internal buffer into output stream.
-		/// output operator
-		/// </summary>
+
+		/// <summary> Copies internal buffer into output stream. output operator </summary>
 		friend std::ofstream& operator<<(std::ofstream& os, const Idx3ImageDataBuffer& obj)
 		{
-			if (os.is_open())
+			// If we don't test to see if the file is open first and in goodbit state, it may throw an exception.
+			for (const auto& elem : obj.ImageBuffer)
 			{
-				for (auto& elem : obj.buffer)
+				if constexpr (obj.SwitchEndian)
 				{
-					if constexpr (obj.SwitchEndian)
-					{
-						auto fixed = swap_endian(elem);
-						os.put(fixed);
-					}
-					else
-					{
-						os.put(elem);
-					}
+					const auto fixed = static_cast<char>(swap_endian(elem));
+					os.put(fixed);
+				}
+				else
+				{
+					os.put(static_cast<char>(elem));
 				}
 			}
 			return os;
