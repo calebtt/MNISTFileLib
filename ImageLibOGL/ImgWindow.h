@@ -28,31 +28,28 @@
 
 struct SmallImage1
 {
+	// OpenGL texture identifier
 	GLuint textureHandle{};
+	// TODO pass the entire vector of MNIST images, use slider.
+	std::vector<GLuint> m_textureHandles;
 
+	// Desired width and height
 	int width{250};
 	int height{250};
-
+	// Origina w/h
 	int m_originalWidth{};
 	int m_originalHeight{};
-
+	// Index of current displayed image.
 	std::size_t currentImageIndex{ 0 };
 	Idx3Lib::Idx3ImageDataBuffer m_imageBytes;
-	//SmallImage1(std::string_view pathToLoad)
-	//{
-	//	static const bool didLoad = LoadTextureFromFile(pathToLoad.data(), textureHandle, width, height);
-	//	IM_ASSERT(didLoad);
-	//	//ImGui::Begin("OpenGL Texture Text");
-	//	//ImGui::Text("pointer = %p", textureHandle);
-	//	ImGui::Text(std::format("pointer = {}", textureHandle).c_str());
-	//	ImGui::Text("size = %d x %d", width, height);
-	//	ImGui::Image((void*)(intptr_t)textureHandle, ImVec2(width, height));
-	//	//ImGui::End();
-	//}
 
+	/**
+	 * \brief Ctor, copies and moves the image data bytes into the local data member.
+	 * \param bytesToLoad Value copy of MNIST image data.
+	 */
 	SmallImage1(Idx3Lib::Idx3ImageDataBuffer bytesToLoad) : m_imageBytes(std::move(bytesToLoad))
 	{
-		static const auto didLoad = LoadTextureFromMemory(m_imageBytes);
+		const auto didLoad = LoadTextureFromMemory(m_imageBytes);
 		IM_ASSERT(didLoad);
 		const auto [texPtr, texWidth, texHeight] = didLoad.value();
 
@@ -172,10 +169,6 @@ struct SmallWindow1
 		auto indexCopy = m_imageIndex;
 		m_imageIndexMessage = std::format("Image at index: {}", indexCopy);
 		ImGui::SliderInt(m_imageIndexMessage.data(), &indexCopy, 0, 100);
-		//ImGui::SliderFloat("Image at index: ", &f, 0.0f, 1.0f);            // Edit 1 float using a slider from 0.0f to 1.0f
-		//ImGui::ColorEdit3("clear color", (float*)&clear_color); // Edit 3 floats representing a color
-		//ImGui::SameLine();
-		//ImGui::Text("counter = %d", counter);
 		const auto frameRateSec = 1000.0f / ImGui::GetIO().Framerate;
 		const auto frameRate = ImGui::GetIO().Framerate;
 		m_fpsMessage = std::format("Application average {:.3f} ms/frame ({:.3f} FPS)", frameRateSec, frameRate);
@@ -193,12 +186,10 @@ inline void glfw_error_callback(int error, const char* description)
 inline
 auto imgMainLoop(
 	GLFWwindow* window,
-	[[maybe_unused]]
-	bool show_another_window, 
 	ImVec4 clear_color,
 	Idx3Lib::Idx3ImageDataBuffer imageBytes)
 {
-	SmallWindow1 imageWindow{ imageBytes };
+	SmallWindow1 imageWindow{ std::move(imageBytes) };
 	// Main loop
 	while (!glfwWindowShouldClose(window))
 	{
@@ -214,23 +205,8 @@ auto imgMainLoop(
 		ImGui_ImplGlfw_NewFrame();
 		ImGui::NewFrame();
 
-		// 1. Show the big demo window (Most of the sample code is in ImGui::ShowDemoWindow()! You can browse its code to learn more about Dear ImGui!).
-		//if (show_demo_window)
-		//ImGui::ShowDemoWindow(&show_demo_window);
 		// 2. Show a simple window that we create ourselves. We use a Begin/End pair to create a named window.
-
 		imageWindow();
-		
-
-		// 3. Show another simple window.
-		//if (show_another_window)
-		//{
-		//	ImGui::Begin("Another Window", &show_another_window);   // Pass a pointer to our bool variable (the window will have a closing button that will clear the bool when clicked)
-		//	ImGui::Text("Hello from another window!");
-		//	if (ImGui::Button("Close Me"))
-		//		show_another_window = false;
-		//	ImGui::End();
-		//}
 
 		// Rendering
 		ImGui::Render();
@@ -293,7 +269,7 @@ auto imgSetup(GLFWwindow*& window) -> std::optional<std::string>
 	//glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);  // 3.2+ only
 	//glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);            // 3.0+ only
 
-	window = { glfwCreateWindow(1280, 720, "Dear ImGui GLFW+OpenGL3 example", nullptr, nullptr) };
+	window = { glfwCreateWindow(1280, 720, "Dear ImGui GLFW+OpenGL3 MNIST viewer", nullptr, nullptr) };
 	if (window == nullptr)
 	{
 		return "Call to glfwCreateWindow() failed!";
@@ -313,8 +289,8 @@ auto imgSetup(GLFWwindow*& window) -> std::optional<std::string>
 	//io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;      // Enable Gamepad Controls
 
 	// Setup Dear ImGui style
-	ImGui::StyleColorsDark();
-	//ImGui::StyleColorsLight();
+	//ImGui::StyleColorsDark();
+	ImGui::StyleColorsLight();
 
 	// Setup Platform/Renderer backends
 	ImGui_ImplGlfw_InitForOpenGL(window, true);
@@ -336,11 +312,9 @@ inline int test_glfw_ogl3(const Idx3Lib::Idx3ImageDataBuffer& imageBytes)
 	}
 
 	// Our state
-	bool show_another_window = false;
-	ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
-
+	const ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
 	// **The main loop!
-	imgMainLoop(window, show_another_window, clear_color, imageBytes);
+	imgMainLoop(window, clear_color, imageBytes);
 
 	// Cleanup function.
 	imgCleanup(window);
